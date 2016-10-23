@@ -85,16 +85,23 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     %   read the audio and sample rate
     [handles.originalAudio, handles.originalFs] = audioread(handles.originalFileName);
     
-    %   renders the spectogram
+    %   render the spectrogram
     axes(handles.originalSpectrogramAxes);
     plotspectrogram(handles.originalAudio, handles.originalFs);
     ylim([200 2000]);
     xlabel('');
     ylabel('');
+    handle.originalSpectrogramAxes.Visible = 'on'
 
-    
-    %   plays the audio
+    %   capture the spectrogram image
+    img = getframe(gca);
+    handles.originalAudioImage = img.cdata;
+
+    %   play the audio
     soundsc(handles.originalAudio, handles.originalFs);
+    
+	%   save the handles
+    guidata(hObject, handles);
     
 %     
 %     handles.setBtn.Enable = 'on';
@@ -116,19 +123,25 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     %   read the audio and sample rate
     [handles.recordingAudio, handles.recordingFs] = audioread(handles.recordingFileName);
     
-    %   renders the spectogram
+    %   render the spectogram
     axes(handles.recordingSpectrogramAxes);
     plotspectrogram(handles.recordingAudio, handles.recordingFs);
     ylim([200 2000]);
     xlabel('');
     ylabel('');
+    handle.recordingSpectrogramAxes.Visible = 'on'
 
+    %   capture the spectrogram image
+    img = getframe(gca);
+    handles.recordingAudioImage = img.cdata;
     
-    %   plays the audio
+    %   play the audio
     soundsc(handles.recordingAudio, handles.recordingFs);
     
     %   Compares the original and recording files
     
+    %   save the handles
+    guidata(hObject, handles);
     
 
 

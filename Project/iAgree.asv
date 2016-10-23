@@ -117,12 +117,13 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     [handles.recordingAudio, handles.recordingFs] = audioread(handles.recordingFileName);
     
     %   renders the spectogram
-    axes(handles.recordingSpectrogram);
-    plotspectrogram(handles.originalAudio, handles.originalFs);
+    axes(handles.recordingSpectrogramAxes);
+    plotspectrogram(handles.recordingAudio, handles.recordingFs);
     ylim([200 2000]);
     xlabel('');
     ylabel('');
 
+    %   capture the spectogram i
     
     %   plays the audio
     soundsc(handles.recordingAudio, handles.recordingFs);
