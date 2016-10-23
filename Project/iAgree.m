@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 23-Oct-2016 23:40:35
+% Last Modified by GUIDE v2.5 23-Oct-2016 23:49:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,9 +79,13 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
 
-    [handles.originalFileName, handles.originalPathName] = uigetfile('*.*', 'Load an original audio track');
+    %   load the file
+    [handles.originalFileName, handles.originalPath] = uigetfile('*.*', 'Load an original audio track');
+    
+    %   read the audio and sample rate
     [handles.originalAudio, handles.originalFs] = audioread(handles.originalFileName);
     
+    %   plays the audio
     soundsc(handles.originalAudio, handles.originalFs);
     
 %     
@@ -90,3 +94,19 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
 %     handles.song = uigetfile;
 %     handles.songName.String = handles.song;
 %     [handles.song, handles.CompareFs] = audioread(handles.song);
+
+
+%%  recordingLoadButton_Callback - loads a file as the recording audio
+function recordingLoadButton_Callback(hObject, eventdata, handles)
+    % hObject    handle to recordingLoadButton (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    %   load the file
+    [handles.recordingFileName, handles.recordingPath] = uigetfile('*.*', 'Load a recording audio track');
+    
+    %   read the audio and sample rate
+    [handles.recordingAudio, handles.recordingFs] = audioread(handles.recordingFileName);
+    
+    %   plays the audio
+    soundsc(handles.recordingAudio, handles.recordingFs);
