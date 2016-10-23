@@ -76,14 +76,8 @@ handles.recorder = audiorecorder(handles.sampleRate, 8, 1);
 
 % settings
 handles.sensitivity = 85;
-handles.sensitivitySlider.Value = handles.sensitivity;
-handles.sensitivityTxt.String = sprintf('%.01f %%', handles.sensitivity);
-
 handles.p_offset = 100;
 handles.delay = 1;
-handles.delaySlider.Value = handles.delay;
-handles.delayTxt.String = sprintf('%.01f s', handles.delay);
-
 
 % Update handles structure
 guidata(hObject, handles);
@@ -390,9 +384,9 @@ function delaySlider_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    handles.delay = handles.delaySlider.Value;
-    handles.delayTxt.String = sprintf('%.01f s', handles.delay);
-    guidata(hObject, handles);
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
 
 % --- Executes during object creation, after setting all properties.
 function delaySlider_CreateFcn(hObject, eventdata, handles)
@@ -413,9 +407,10 @@ function sensitivitySlider_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
     handles.sensitivity = handles.sensitivitySlider.Value;
-    handles.sensitivityTxt.String = sprintf('%.01f %%', handles.sensitivity);
-    guidata(hObject, handles);
     
+    txt = sprintf('%d %%', handles.sensitivitySlider.Value);
+    handles.sensitivityTxt.String = txt;
+    handles.sensitivity = handles.sensitivitySlider.Value;
     
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
