@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 02:38:34
+% Last Modified by GUIDE v2.5 24-Oct-2016 02:59:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,13 +56,18 @@ function iAgree_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for iAgree
 handles.output = hObject;
 
+% Update handles structure
+guidata(hObject, handles);
+
+
 %  Ensure that all axes are the same width
-handles.recordingSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
-handles.recordingSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
-handles.comparisonSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
-handles.sampleRate = 44100;
+% handles.recordingSpectrogramAxes.Position(3) = 100;%handles.originalSpectrogramAxes.Position(3);
+% handles.recordingSpectrogramAxes.Position(4) = 24;%handles.originalSpectrogramAxes.Position(4);
+% handles.comparisonSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
+% handles.comparisonSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
 
 % audio recorder
+handles.sampleRate = 44100;
 handles.recordingInProgress = 0;
 handles.recorder = audiorecorder(handles.sampleRate, 8, 1);
 
@@ -138,6 +143,8 @@ function renderRecordingAudio(hObject, handles)
     %   save the handles
     guidata(hObject, handles);
     
+    compareOriginalAndRecordingImages(hObject, handles)
+    
 %%  recordingLoadButton_Callback - loads a file as the recording audio
 function recordingLoadButton_Callback(hObject, eventdata, handles)
     % hObject    handle to recordingLoadButton (see GCBO)
@@ -155,30 +162,19 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     [recordingAudioLength, ~] = size(handles.recordingAudio);
 
     if (originalAudioLength > recordingAudioLength);
-       handles.recordingAudio = padarray(handles.recordingAudio, originalAudioLength);
+       handles.recordingAudio = padarray(handles.recordingAudio, originalAudioLength, 'replicate', 'post');
     elseif (originalAudioLength < recordingAudioLength);
         handles.recordingAudio = handles.recordingAudio(1:originalAudioLength, :);
     end;
     
-    %   render the spectogram
-    axes(handles.recordingSpectrogramAxes);
-    plotspectrogram(handles.recordingAudio, handles.recordingFs);
-    ylim([200 2000]);
-    xlabel('');
-    ylabel('');
-    handle.recordingSpectrogramAxes.Visible = 'on'
-
-    %   capture the spectrogram image
-    img = getframe(gca);
-    handles.recordingAudioImage = img.cdata;
-    
-    %   Compares the original and recording files
-    
     %   save the handles
     guidata(hObject, handles);
     
-    %   compare the images
-    compareOriginalAndRecordingImages(hObject, handles)
+     
+    %   render the audio
+    renderRecordingAudio(hObject, handles);
+  
+
 
 %% compareOriginalAndRecordingImages - compares two images
 function compareOriginalAndRecordingImages(hObject, handles)
@@ -287,9 +283,6 @@ function recordingAudioRecordBtn_Callback(hObject, eventdata, handles)
         %   render the audio
         renderRecordingAudio(hObject, handles);
         
-        %   compare the images
-        compareOriginalAndRecordingImages(hObject, handles)
-
         %   change the GUI
         handles.recordingAudioRecordBtn.String = 'Record';
         
@@ -315,7 +308,15 @@ function recordingPlayButton_Callback(hObject, eventdata, handles)
     soundsc(handles.recordingAudio, handles.recordingFs);
     
 
-
 %% disableAllInputs - disables all user controls
 function disableAllInputs()
         
+
+
+% --- Executes on button press in comparisonBtn.
+function comparisonBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to comparisonBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    
+    compareOriginalAndRecordingImages(hObject, handles)
