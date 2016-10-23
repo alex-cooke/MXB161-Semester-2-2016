@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 02:21:03
+% Last Modified by GUIDE v2.5 24-Oct-2016 02:38:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -101,16 +101,7 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     
     %   render the original audio
     renderOriginalAudio(hObject, handles);
-    
-
-    
-%     
-%     handles.setBtn.Enable = 'on';
-%     loadBtn = hObject;
-%     handles.song = uigetfile;
-%     handles.songName.String = handles.song;
-%     [handles.song, handles.CompareFs] = audioread(handles.song);
-
+   
 %% renderOriginalAudio
 function renderOriginalAudio(hObject, handles)
     
@@ -128,6 +119,24 @@ function renderOriginalAudio(hObject, handles)
     
     % save the data
     guidata(hObject, handles)
+   
+%% renderRecordingAudio
+function renderRecordingAudio(hObject, handles)
+    
+    %   render the spectrogram
+    axes(handles.recordingSpectrogramAxes);
+    plotspectrogram(handles.recordingAudio, handles.recordingFs);
+    ylim([200 2000]);
+    xlabel('');
+    ylabel('');
+    handles.recordingSpectrogramAxes.Visible = 'on';
+
+    %   capture the spectrogram image
+    img = getframe(gca);
+    handles.recordingAudioImage = img.cdata;
+    
+    %   save the handles
+    guidata(hObject, handles);
     
 %%  recordingLoadButton_Callback - loads a file as the recording audio
 function recordingLoadButton_Callback(hObject, eventdata, handles)
@@ -221,13 +230,16 @@ function originalAudioRecordBtn_Callback(hObject, eventdata, handles)
         
         %   save the audio
         handles.originalAudio = getaudiodata(handles.recorder);
-        handles.originalSampleRate = handles.sampleRate;
+        handles.originalFs = handles.sampleRate;
 
+        % save the handles
+        guidata(hObject, handles);
+        
         %   render the audio
         renderOriginalAudio(hObject, handles);
         
         %   change the GUI
-        handles.originalAudioRecordBtn.String = 'Record'
+        handles.originalAudioRecordBtn.String = 'Record';
         
     else;
         
@@ -236,12 +248,12 @@ function originalAudioRecordBtn_Callback(hObject, eventdata, handles)
         handles.recorder.record;
         
         %   change the GUI
-        handles.originalAudioRecordBtn.String = 'Stop'
+        handles.originalAudioRecordBtn.String = 'Stop';
+        
+        % save the handles
+        guidata(hObject, handles);
         
     end;
-    
-    guidata(hObject, handles);
-
 
 % --- Executes on button press in originalAudioPlayBtn.
 function originalAudioPlayBtn_Callback(hObject, eventdata, handles)
@@ -250,4 +262,60 @@ function originalAudioPlayBtn_Callback(hObject, eventdata, handles)
     % handles    structure with handles and user data (see GUIDATA)
     
     soundsc(handles.originalAudio, handles.originalFs);
+
+
+% --- recordingAudioRecordBtn_Callback - records new audio from the
+% microphone to compare with the original
+function recordingAudioRecordBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to recordingRecordBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+    if(handles.recordingInProgress == 1);
+        
+        %   stop the recorder
+        handles.recorder.stop;
+        handles.recordingInProgress = 0;
+        
+        %   save the audio
+        handles.recordingAudio = getaudiodata(handles.recorder);
+        handles.recordingFs = handles.sampleRate;
+        
+        %   save the handles
+        guidata(hObject, handles);
+        
+        %   render the audio
+        renderRecordingAudio(hObject, handles);
+        
+        %   compare the images
+        compareOriginalAndRecordingImages(hObject, handles)
+
+        %   change the GUI
+        handles.recordingAudioRecordBtn.String = 'Record';
+        
+    else;
+        
+        %   start the recorder
+        handles.recordingInProgress = 1;
+        handles.recorder.record;
+        
+        %   change the GUI
+        handles.recordingAudioRecordBtn.String = 'Stop';
+
+        guidata(hObject, handles);
+            
+    end;
     
+%% recordingPlayButton_Callback - records a new recording audio from the microphone
+function recordingPlayButton_Callback(hObject, eventdata, handles)
+% hObject    handle to recordingPlayButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    
+    soundsc(handles.recordingAudio, handles.recordingFs);
+    
+
+
+%% disableAllInputs - disables all user controls
+function disableAllInputs()
+        
