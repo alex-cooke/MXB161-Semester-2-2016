@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 08:36:50
+% Last Modified by GUIDE v2.5 24-Oct-2016 09:00:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -132,10 +132,14 @@ function renderOriginalAudio(hObject, handles)
     xlabel('');
     ylabel('');
     handle.originalSpectrogramAxes.Visible = 'on'
-
+    axis off
+    
     %   capture the spectrogram image
     img = getframe(gca);
     handles.originalAudioImage = img.cdata;
+    
+    % hide the live axis
+    handles.axesLive.Visible = 'off'
     
     % save the data
     guidata(hObject, handles)
@@ -150,7 +154,8 @@ function renderRecordingAudio(hObject, handles)
     xlabel('');
     ylabel('');
     handles.recordingSpectrogramAxes.Visible = 'on';
-
+    axis off
+    
     %   capture the spectrogram image
     img = getframe(gca);
     handles.recordingAudioImage = img.cdata;
@@ -158,7 +163,7 @@ function renderRecordingAudio(hObject, handles)
     %   save the handles
     guidata(hObject, handles);
     
-    compareOriginalAndRecordingImages(hObject, handles)
+    compareOriginalAndRecordingImages(hObject, handles);
     
 %%  recordingLoadButton_Callback - loads a file as the recording audio
 function recordingLoadButton_Callback(hObject, eventdata, handles)
@@ -211,7 +216,7 @@ function compareOriginalAndRecordingImages(hObject, handles)
     x.p_offset = 100;
     x.delay = 1;
 
-    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, 85,100,1);
+    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, handles.sensitivity,handles.p_offset,handles.delay);
 
     %   render the comparison spectogram
     axes(handles.comparisonSpectrogramAxes);
@@ -351,6 +356,7 @@ function disableAllInputs(handles)
     handles.recordingLoadButton.Enable = 'off';
     handles.recordingAudioRecordBtn.Enable = 'off';
     handles.recordingPlayButton.Enable = 'off';
+    handles.recordingLiveButton.Enable = 'off';
     
 function enableAllInputs(handles)
 
@@ -361,7 +367,7 @@ function enableAllInputs(handles)
     handles.recordingLoadButton.Enable = 'on';
     handles.recordingAudioRecordBtn.Enable = 'on';
     handles.recordingPlayButton.Enable = 'on';
-    
+    handles.recordingLiveButton.Enable = 'on';
 
 function playLeadIn(handles)
 
@@ -456,3 +462,128 @@ function pitchSlider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on button press in recordingLiveButton.
+function recordingLiveButton_Callback(hObject, eventdata, handles)
+% hObject    handle to recordingLiveButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+    % hide the other axes
+%     handles.originalSpectrogramAxes.Visible = 'Off';
+%     handles.recordingSpectrogramAxes.Visible = 'Off';
+     handles.comparisonSpectrogramAxes.Visible = 'off';
+    guidata(hObject, handles);
+    disableAllInputs(handles);
+    
+    recordBtn = hObject;
+    handles.recording = audiorecorder(handles.originalFs,8,1); %initialize audio recorder object with Fs sample rate, 8-bit bit depth, 1 channel
+    handles.durationSong = length(handles.originalAudio)/ handles.originalFs; % sets the size of the 
+    handles.percentages = zeros(1,0);
+    handles.Stop = 0;
+    %save all variables
+    guidata(hObject,handles);
+
+    playLeadIn(handles);
+    
+    %initialize recording
+    initRecord(recordBtn);
+    initTimer(recordBtn);
+    x = guidata(recordBtn);
+    startTimer(x.t);
+    handles.Stop = 0;
+    Record(recordBtn, x.t, handles);
+
+function Record(recordBtn,recordTimer, handles)
+    x = guidata(recordBtn);
+    x.average_percentage = 0;
+    guidata(recordBtn, x);
+    x.prevLength = 1;
+    x.count = 0;
+    s = struct();
+    s.images = {};
+
+    while length(x.a) <= length(x.originalAudio) & x.Stop == 0;
+
+        if(strcmp(recordTimer.Running,'off') == 1)
+            x.a = getaudiodata(x.recording);
+            if(length(x.a) > length(x.originalAudio))
+                break;
+            end
+            x.currentLengthA = length(x.a);
+            [x.image_sound_a, x.image_sound_b] = audioTimer(x.a,x.originalSpectrogramAxes,x.recordingSpectrogramAxes,x.originalAudio, x.originalFs, x.currentLengthA,x.prevLength);
+            [x.percentage, x.mask_a, x.mask_b,x.overlap]  = compareImages(x.image_sound_a, x.image_sound_b,x.sensitivity,x.delay,x.p_offset);
+
+            s.images = vertcat(s.images, [x.image_sound_a], [x.image_sound_b]); 
+            delete(recordTimer);
+            recordTimer = timer;
+            recordTimer.TimerFcn = 'x.timer_finished = true;';
+            recordTimer.StartDelay = 1;
+            % compare b to a 
+    %         figure;
+    %         imshow(x.overlap);
+            x.percentage = x.percentage * 100;
+            if isnan(x.percentage)
+                x.percentage = 0;
+            end
+            start(recordTimer);
+            x.percentages = horzcat(x.percentages, x.percentage);
+            x.average_percentage = (sum(x.percentages) /  length(x.percentages));
+            string  = sprintf('%.0f %%', x.average_percentage);
+            x.comparisonAccuracyTxt.String = string;
+           
+
+        end
+        x.prevLength = x.currentLengthA;
+
+
+    end
+    x.percentages
+    x.recording.stop;
+    x.resetBtn.Enable = 'on';
+
+    axes(x.originalSpectrogramAxes);
+    plotspectrogram(x.originalAudio(1:x.currentLengthA,1),x.originalFs);
+    ylim([200 2000]);
+
+    axis off
+
+    axes(x.recordingSpectrogramAxes);
+    plotspectrogram(x.a(1:x.currentLengthA),x.originalFs);
+
+    ylim([200 2000]);
+    
+    axis off
+
+    % save images to compare them 
+    for i = 1:length(s.images)
+        str = sprintf('%d',i);
+        str(end+1:end+4) = '.png';
+        imwrite(s.images{i},str)
+    end
+    
+    enableAllInputs(handles);
+    
+function initRecord(recordHandle)
+    x = guidata(recordHandle);
+    x.a = zeros(1,1); %initialize audio recording
+    x.recording.record;
+    x.currentLengthA = length(x.a);
+    %delay to allow time to record something to avoid empty a
+    guidata(recordHandle, x);
+    pause(0.1);
+
+function initTimer(recordHandle)
+    %create timer object 
+    x = guidata(recordHandle);
+    x.timer_finished = false;
+    x.t = timer;
+    x.t.TimerFcn = 'x.timer_finished = true;';
+    x.t.StartDelay = 1; %set interval at which audio is analyzed 
+    guidata(recordHandle,x);
+
+function startTimer(timer)
+    start(timer)
+
+

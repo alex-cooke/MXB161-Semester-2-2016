@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 08:36:50
+% Last Modified by GUIDE v2.5 24-Oct-2016 09:00:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -76,8 +76,16 @@ handles.recorder = audiorecorder(handles.sampleRate, 8, 1);
 
 % settings
 handles.sensitivity = 85;
+handles.sensitivitySlider.Value = handles.sensitivity;
+handles.sensitivityTxt.String = sprintf('%.01f %%', handles.sensitivity);
+
 handles.p_offset = 100;
+handles.pitchSlider.Value = handles.p_offset;
+handles.pitchTxt.String = sprintf('%.0f Hz', handles.p_offset);
+    
 handles.delay = 1;
+handles.delaySlider.Value = handles.delay;
+handles.delayTxt.String = sprintf('%.01f s', handles.delay);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -203,7 +211,7 @@ function compareOriginalAndRecordingImages(hObject, handles)
     x.p_offset = 100;
     x.delay = 1;
 
-    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, 85,100,1);
+    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, handles.sensitivity,handles.p_offset,handles.delay);
 
     %   render the comparison spectogram
     axes(handles.comparisonSpectrogramAxes);
@@ -343,6 +351,7 @@ function disableAllInputs(handles)
     handles.recordingLoadButton.Enable = 'off';
     handles.recordingAudioRecordBtn.Enable = 'off';
     handles.recordingPlayButton.Enable = 'off';
+    handles.recordingLiveButton.Enable = 'off';
     
 function enableAllInputs(handles)
 
@@ -353,7 +362,7 @@ function enableAllInputs(handles)
     handles.recordingLoadButton.Enable = 'on';
     handles.recordingAudioRecordBtn.Enable = 'on';
     handles.recordingPlayButton.Enable = 'on';
-    
+    handles.recordingLiveButton.Enable = 'on';
 
 function playLeadIn(handles)
 
@@ -384,9 +393,9 @@ function delaySlider_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+    handles.delay = handles.delaySlider.Value;
+    handles.delayTxt.String = sprintf('%.01f s', handles.delay);
+    guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function delaySlider_CreateFcn(hObject, eventdata, handles)
@@ -407,10 +416,9 @@ function sensitivitySlider_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
     handles.sensitivity = handles.sensitivitySlider.Value;
+    handles.sensitivityTxt.String = sprintf('%.01f %%', handles.sensitivity);
+    guidata(hObject, handles);
     
-    txt = sprintf('%d %%', handles.sensitivitySlider.Value);
-    handles.sensitivityTxt.String = txt;
-    handles.sensitivity = handles.sensitivitySlider.Value;
     
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -434,8 +442,9 @@ function pitchSlider_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+    handles.p_offset = handles.pitchSlider.Value;
+    handles.pitchTxt.String = sprintf('%.0f Hz', handles.p_offset);
+    guidata(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -447,4 +456,91 @@ function pitchSlider_CreateFcn(hObject, eventdata, handles)
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on button press in recordingLiveButton.
+function recordingLiveButton_Callback(hObject, eventdata, handles)
+% hObject    handle to recordingLiveButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+recordBtn = hObject;
+handles.recording = audiorecorder(handles.CompareFs,8,1); %initialize audio recorder object with Fs sample rate, 8-bit bit depth, 1 channel
+handles.durationSong = length(handles.song)/ handles.CompareFs; % sets the size of the 
+handles.percentages = zeros(1,0);
+handles.Stop = 0;
+%save all variables
+guidata(recordBtn,handles);
+
+%initialize recording
+initRecord(recordBtn);
+initTimer(recordBtn);
+x = guidata(recordBtn);
+startTimer(x.t);
+handles.Stop = 0;
+Record(recordBtn, x.t);
+
+function Record(recordBtn,recordTimer)
+x = guidata(recordBtn);
+x.average_percentage = 0;
+guidata(recordBtn, x);
+x.prevLength = 1;
+x.count = 0;
+s = struct();
+s.images = {};
+
+while length(x.a) <= length(x.song) & x.Stop == 0;
+
+    if(strcmp(recordTimer.Running,'off') == 1)
+        x.a = getaudiodata(x.recording);
+        if(length(x.a) > length(x.song))
+            break;
+        end
+        x.currentLengthA = length(x.a);
+        [x.image_sound_a, x.image_sound_b] = audioTimer(x.a,x.axesLive,x.axesRecord,x.song, x.CompareFs, x.currentLengthA,x.prevLength);
+        [x.percentage, x.mask_a, x.mask_b,x.overlap]  = compareImages(x.image_sound_a, x.image_sound_b,x.sensitivity,x.delay,x.p_offset);
+
+        s.images = vertcat(s.images, [x.image_sound_a], [x.image_sound_b]); 
+        delete(recordTimer);
+        recordTimer = timer;
+        recordTimer.TimerFcn = 'x.timer_finished = true;';
+        recordTimer.StartDelay = 1;
+        % compare b to a 
+%         figure;
+%         imshow(x.overlap);
+        x.percentage = x.percentage * 100;
+        if isnan(x.percentage)
+            x.percentage = 0;
+        end
+        start(recordTimer);
+        x.percentages = horzcat(x.percentages, x.percentage);
+        x.average_percentage = (sum(x.percentages) /  length(x.percentages));
+        string  = sprintf(' Accuracy %.2f %%', x.average_percentage);
+        x.accuracyTxt.String = string;
+        
+    end
+    x.prevLength = x.currentLengthA;
+   
+
+end
+x.percentages
+x.recording.stop;
+x.resetBtn.Enable = 'on';
+
+axes(x.axesLive);
+plotspectrogram(x.song(1:x.currentLengthA,1),x.CompareFs);
+ylim([200 2000]);
+
+
+axes(x.axesRecord);
+plotspectrogram(x.a(1:x.currentLengthA),x.CompareFs);
+
+ylim([200 2000]);
+
+% save images to compare them 
+for i = 1:length(s.images)
+    str = sprintf('%d',i);
+    str(end+1:end+4) = '.png';
+    imwrite(s.images{i},str)
 end
