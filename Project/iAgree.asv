@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 01:55:07
+% Last Modified by GUIDE v2.5 24-Oct-2016 02:21:03
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -124,7 +124,7 @@ function renderOriginalAudio(hObject, handles)
     img = getframe(gca);
     handles.originalAudioImage = img.cdata;
     
-    % save the data
+    save the data
     guidata(hObject, handles)
     
 %%  recordingLoadButton_Callback - loads a file as the recording audio
@@ -212,13 +212,40 @@ function originalAudioRecordBtn_Callback(hObject, eventdata, handles)
     % handles    structure with handles and user data (see GUIDATA)
 
     if(handles.recordingInProgress == 1);
+        
+        %   stop the recorder
         handles.recorder.stop;
-        audio = getaudiodata(handles.recorder);
-        soundsc(audio, handles.sampleRate);
         handles.recordingInProgress = 0;
+        
+        %   save the audio
+        handles.originalAudio = getaudiodata(handles.recorder);
+        handles.originalSampleRate = handles.sampleRate;
+
+        %   render the audio
+        renderOriginalAudio(hObject, handles);
+        
+        %   change the GUI
+        handles.originalAudioRecordBtn.String = 'Record'
+        
     else;
+        
+        %   start the recorder
         handles.recordingInProgress = 1;
         handles.recorder.record;
+        
+        %   change the GUI
+        handles.originalAudioRecordBtn.String = 'Stop'
+        
     end;
     
     guidata(hObject, handles);
+
+
+% --- Executes on button press in originalAudioPlayBtn.
+function originalAudioPlayBtn_Callback(hObject, eventdata, handles)
+    % hObject    handle to originalAudioPlayBtn (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    soundsc(handles.originalAudio, handles.originalFs);
+    
