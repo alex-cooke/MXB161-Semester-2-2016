@@ -80,10 +80,12 @@ handles.sensitivitySlider.Value = handles.sensitivity;
 handles.sensitivityTxt.String = sprintf('%.01f %%', handles.sensitivity);
 
 handles.p_offset = 100;
+handles.pitchSlider.Value = handles.p_offset;
+handles.pitchTxt.String = sprintf('%.0f Hz', handles.p_offset);
+    
 handles.delay = 1;
 handles.delaySlider.Value = handles.delay;
 handles.delayTxt.String = sprintf('%.01f s', handles.delay);
-
 
 % Update handles structure
 guidata(hObject, handles);
@@ -439,8 +441,9 @@ function pitchSlider_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+    handles.p_offset = handles.pitchSlider.Value;
+    handles.pitchTxt.String = sprintf('%.0f Hz', handles.p_offset);
+    guidata(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
