@@ -71,6 +71,9 @@ handles.sampleRate = 44100;
 handles.recordingInProgress = 0;
 handles.recorder = audiorecorder(handles.sampleRate, 8, 1);
 
+% load the metronome
+[handles.metronomeAudio, handles.metronomeFs] = audioread('metronome.wav');
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -241,6 +244,9 @@ function originalAudioRecordBtn_Callback(hObject, eventdata, handles)
         
     else;
         
+        %   play the lead in
+        playLeadIn(handles);
+        
         %   start the recorder
         handles.recordingInProgress = 1;
         handles.recorder.record;
@@ -290,6 +296,9 @@ function recordingAudioRecordBtn_Callback(hObject, eventdata, handles)
         
     else;
         
+        %   play the lead in
+        playLeadIn(handles);
+        
         %   start the recorder
         handles.recordingInProgress = 1;
         handles.recorder.record;
@@ -315,6 +324,20 @@ function disableAllInputs()
         
 
 
+function playLeadIn(handles)
+
+    soundsc(handles.metronomeAudio, handles.metronomeFs);
+    pause(0.5)
+
+    soundsc(handles.metronomeAudio, handles.metronomeFs);
+    pause(0.5)
+
+    soundsc(handles.metronomeAudio, handles.metronomeFs);
+    pause(0.5)
+
+    soundsc(handles.metronomeAudio, handles.metronomeFs);
+    pause(0.5)
+    
 % --- Executes on button press in comparisonBtn.
 function comparisonBtn_Callback(hObject, eventdata, handles)
 % hObject    handle to comparisonBtn (see GCBO)
