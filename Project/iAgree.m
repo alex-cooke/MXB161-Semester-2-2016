@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 00:01:19
+% Last Modified by GUIDE v2.5 24-Oct-2016 01:55:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,7 +60,11 @@ handles.output = hObject;
 handles.recordingSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
 handles.recordingSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
 handles.comparisonSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
+handles.sampleRate = 44100;
 
+% audio recorder
+handles.recordingInProgress = 0;
+handles.recorder = audiorecorder(handles.sampleRate, 8, 1);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -92,6 +96,22 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     %   read the audio and sample rate
     [handles.originalAudio, handles.originalFs] = audioread(handles.originalFileName);
     
+    %   render the original audio
+    renderOriginalAudio(hObject, handles);
+    
+	%   save the handles
+    guidata(hObject, handles);
+    
+%     
+%     handles.setBtn.Enable = 'on';
+%     loadBtn = hObject;
+%     handles.song = uigetfile;
+%     handles.songName.String = handles.song;
+%     [handles.song, handles.CompareFs] = audioread(handles.song);
+
+%% renderOriginalAudio
+function renderOriginalAudio(hObject, handles)
+    
     %   render the spectrogram
     axes(handles.originalSpectrogramAxes);
     plotspectrogram(handles.originalAudio, handles.originalFs);
@@ -103,18 +123,10 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     %   capture the spectrogram image
     img = getframe(gca);
     handles.originalAudioImage = img.cdata;
-
-	%   save the handles
-    guidata(hObject, handles);
     
-%     
-%     handles.setBtn.Enable = 'on';
-%     loadBtn = hObject;
-%     handles.song = uigetfile;
-%     handles.songName.String = handles.song;
-%     [handles.song, handles.CompareFs] = audioread(handles.song);
-
-
+    % save the data
+    guidata(hObject, handles)
+    
 %%  recordingLoadButton_Callback - loads a file as the recording audio
 function recordingLoadButton_Callback(hObject, eventdata, handles)
     % hObject    handle to recordingLoadButton (see GCBO)
@@ -191,3 +203,39 @@ function originalSpectrogramAxes_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: place code in OpeningFcn to populate originalSpectrogramAxes
+
+
+%% originalAudioRecordBtn_Callback - records a new audio to use as the original
+function originalAudioRecordBtn_Callback(hObject, eventdata, handles)
+    % hObject    handle to originalAudioRecordBtn (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    if(handles.recordingInProgress == 1);
+        
+        %   stop the recorder
+        handles.recorder.stop;
+        handles.recordingInProgress = 0;
+        
+        %   save the audio
+        handles.originalAudio = getaudiodata(handles.recorder);
+        handles.originalSampleRate = handles.sampleRate;
+
+        %   render the audio
+        renderOriginalAudio(hObject, handles);
+        
+        %   change the GUI
+        handles.originalAudioRecordBtn.String = 'Record'
+        
+    else;
+        
+        %   start the recorder
+        handles.recordingInProgress = 1;
+        handles.recorder.record;
+        
+        %   change the GUI
+        handles.originalAudioRecordBtn.String = 'Stop'
+        
+    end;
+    
+    guidata(hObject, handles);
