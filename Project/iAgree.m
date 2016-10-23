@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 23-Oct-2016 23:49:42
+% Last Modified by GUIDE v2.5 24-Oct-2016 00:01:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -85,6 +85,14 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     %   read the audio and sample rate
     [handles.originalAudio, handles.originalFs] = audioread(handles.originalFileName);
     
+    %   renders the spectogram
+    axes(handles.originalSpectrogramAxes);
+    plotspectrogram(handles.originalAudio, handles.originalFs);
+    ylim([200 2000]);
+    xlabel('');
+    ylabel('');
+
+    
     %   plays the audio
     soundsc(handles.originalAudio, handles.originalFs);
     
@@ -108,5 +116,26 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     %   read the audio and sample rate
     [handles.recordingAudio, handles.recordingFs] = audioread(handles.recordingFileName);
     
+    %   renders the spectogram
+    axes(handles.recordingSpectrogramAxes);
+    plotspectrogram(handles.recordingAudio, handles.recordingFs);
+    ylim([200 2000]);
+    xlabel('');
+    ylabel('');
+
+    
     %   plays the audio
     soundsc(handles.recordingAudio, handles.recordingFs);
+    
+    %   Compares the original and recording files
+    
+    
+
+
+% --- Executes during object creation, after setting all properties.
+function originalSpectrogramAxes_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to originalSpectrogramAxes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: place code in OpeningFcn to populate originalSpectrogramAxes
