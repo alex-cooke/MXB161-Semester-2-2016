@@ -50,10 +50,16 @@ function iAgree_OpeningFcn(hObject, eventdata, handles, varargin)
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to iAgree (see VARARGIN)
+% varargin   command line arguments to iAgree (see VARARGIN)guide
+
 
 % Choose default command line output for iAgree
 handles.output = hObject;
+
+%  Ensure that all axes are the same width
+handles.recordingSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
+handles.recordingSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
+
 
 % Update handles structure
 guidata(hObject, handles);
@@ -97,9 +103,6 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     img = getframe(gca);
     handles.originalAudioImage = img.cdata;
 
-    %   play the audio
-    soundsc(handles.originalAudio, handles.originalFs);
-    
 	%   save the handles
     guidata(hObject, handles);
     
@@ -135,15 +138,28 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     img = getframe(gca);
     handles.recordingAudioImage = img.cdata;
     
-    %   play the audio
-    soundsc(handles.recordingAudio, handles.recordingFs);
-    
     %   Compares the original and recording files
     
     %   save the handles
     guidata(hObject, handles);
     
+    %   compare the images
+    compareOriginalAndRecordingImages(hObject, handles)
 
+%% compareOriginalAndRecordingImages - compares two images
+function compareOriginalAndRecordingImages(hObject, handles)
+
+    x = guidata(hObject);
+
+    x.sensitivity = 85;
+    x.p_offset = 100;
+    x.delay = 1;
+
+  %  [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage);
+    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.originalAudioImage, 85,100,1);
+
+    axes(handles.comparisonSpectrogramAxes);
+    imshow(overlap_mask_col);
 
 % --- Executes during object creation, after setting all properties.
 function originalSpectrogramAxes_CreateFcn(hObject, eventdata, handles)
