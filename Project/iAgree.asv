@@ -297,7 +297,7 @@ function recordingAudioRecordBtn_Callback(hObject, eventdata, handles)
         renderRecordingAudio(hObject, handles);
         
         %   change the GUI
-        handles.recordingAudioRecordBtn.String = 'Record';
+        handles.recordingAudioRecordButtontn.String = 'Record';
         enableAllInputs(handles);
         
     else;
@@ -313,8 +313,8 @@ function recordingAudioRecordBtn_Callback(hObject, eventdata, handles)
         handles.recorder.record;
         
         %   change the GUI
-        handles.recordingAudioRecordBtn.String = 'Stop';
-        handles.recordingAudioRecordBtn.Enable = 'on';
+        handles.recordingAudioRecordButton.String = 'Stop';
+        handles.recordingAudioRecordButton.Enable = 'on';
 
         guidata(hObject, handles);
             
