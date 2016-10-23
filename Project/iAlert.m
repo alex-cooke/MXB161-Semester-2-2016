@@ -22,9 +22,10 @@ function varargout = iAlert(varargin)
 
 % Edit the above text to modify the response to help iAlert
 
-% Last Modified by GUIDE v2.5 23-Oct-2016 22:31:39
+% Last Modified by GUIDE v2.5 23-Oct-2016 23:00:13
 
 format compact
+
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,6 +57,9 @@ function iAlert_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for iAlert
 handles.output = hObject;
+
+handles.debug = 1;
+
 
 % Update handles structure
 guidata(hObject, handles);
@@ -169,7 +173,7 @@ function Record(recordBtn,recordTimer)
     % Process while the length of the recording is shorter then the
     % original and the stop button has not been pressed
     while length(x.a) <= length(x.song) & x.Stop == 0;
-        
+
         if(strcmp(recordTimer.Running,'off') == 1)
             x.a = getaudiodata(x.recording);
             if(length(x.a) > length(x.song))
@@ -232,8 +236,20 @@ function btnStop_Callback(hObject, eventdata, handles)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
 
-    if (de
-    'STOPPING
-    handles.Stop == 1;
+    if (handles.debug)
+        'btnStop_Callback'
+    end
+        
+    handles.Stop = 1;
     guidata(hObject, handles);
    
+
+
+% --- Executes on button press in pushbutton5.
+function pushbutton5_Callback(hObject, eventdata, handles)
+    % hObject    handle to pushbutton5 (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    soundsc(handles.song, handles.CompareFs);
+    
