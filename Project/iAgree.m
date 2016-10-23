@@ -59,6 +59,7 @@ handles.output = hObject;
 %  Ensure that all axes are the same width
 handles.recordingSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
 handles.recordingSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
+handles.comparisonSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
 
 
 % Update handles structure
@@ -155,11 +156,14 @@ function compareOriginalAndRecordingImages(hObject, handles)
     x.p_offset = 100;
     x.delay = 1;
 
-  %  [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage);
-    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.originalAudioImage, 85,100,1);
+    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, 85,100,1);
 
+    %   render the comparison spectogram
     axes(handles.comparisonSpectrogramAxes);
     imshow(overlap_mask_col);
+    
+    %   show the comparison accuracy
+    handles.comparisonAccuracyTxt.String = sprintf('%.1f %%', percent_overlap * 100);
 
 % --- Executes during object creation, after setting all properties.
 function originalSpectrogramAxes_CreateFcn(hObject, eventdata, handles)
