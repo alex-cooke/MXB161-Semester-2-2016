@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 02:59:46
+% Last Modified by GUIDE v2.5 24-Oct-2016 08:23:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -372,3 +372,47 @@ function comparisonBtn_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
     
     compareOriginalAndRecordingImages(hObject, handles)
+
+
+% --- Executes on slider movement.
+function delaySlider_Callback(hObject, eventdata, handles)
+% hObject    handle to delaySlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function delaySlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to delaySlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function sensitivitySlider_Callback(hObject, eventdata, handles)
+% hObject    handle to sensitivitySlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function sensitivitySlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sensitivitySlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
