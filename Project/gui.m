@@ -188,10 +188,6 @@ handles.stopSong.Enable ='on';
 %save all variables
 guidata(loadBtn,handles);
 
-
-
-
-
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
 % hObject    handle to slider1 (see GCBO)
@@ -291,7 +287,7 @@ function stopBtn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles.Stop == 1;
+    handles.Stop == 1;
 
 % --- Executes on key press with focus on loadBtn and none of its controls.
 function loadBtn_KeyPressFcn(hObject, eventdata, handles)
@@ -332,7 +328,6 @@ x.prevLength = 1;
 x.count = 0;
 s = struct();
 s.images = {};
-
 
 while length(x.a) <= length(x.song) & x.Stop == 0;
 
