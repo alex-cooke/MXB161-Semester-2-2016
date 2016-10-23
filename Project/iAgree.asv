@@ -59,6 +59,7 @@ handles.output = hObject;
 %  Ensure that all axes are the same width
 handles.recordingSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
 handles.recordingSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
+handles.comparisonSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
 
 
 % Update handles structure
@@ -126,6 +127,16 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     %   read the audio and sample rate
     [handles.recordingAudio, handles.recordingFs] = audioread(handles.recordingFileName);
     
+    %   crop/pad the recording so that it matches the original
+    [originalAudioLength, ~] = size(handles.originalAudio);
+    [recordingAudioLength, ~] = size(handles.recordingAudio);
+
+    if (originalAudioLength > recordingAudioLength);
+       handles.recordingAudio = padarray(handles.recordingAudio, originalAudioLength);
+    elseif (originalAudioLength < recordingAudioLength);
+        handles.recordingAudio = handles.recordingAudio(1:originalAudioLength, :);
+    end;
+    
     %   render the spectogram
     axes(handles.recordingSpectrogramAxes);
     plotspectrogram(handles.recordingAudio, handles.recordingFs);
@@ -144,21 +155,33 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     guidata(hObject, handles);
     
     %   compare the images
-    compareImages(hObject, handles)
+    compareOriginalAndRecordingImages(hObject, handles)
 
 %% compareOriginalAndRecordingImages - compares two images
 function compareOriginalAndRecordingImages(hObject, handles)
 
+    % ensure that the images match
+    [aX, aY, aZ] = size(handles.originalAudioImage);
+    [bX, bY, bZ] = size(handles.recordingAudioImage);
+    padding = [bX - aX
+    handles.recordingAudioImage = padarray(handles.recordingAudioImage, [(bX - aX) (bY - aY)]);
+    
+    
     x = guidata(hObject);
 
     x.sensitivity = 85;
     x.p_offset = 100;
     x.delay = 1;
 
-  %  [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage);
-    [a,b,c,d] = compareImages(handles.originalAudioImage, handles.originalAudioImage, x.sensitivity, 100, 1);
-    
 
+    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, 85,100,1);
+
+    %   render the comparison spectogram
+    axes(handles.comparisonSpectrogramAxes);
+    imshow(overlap_mask_col);
+    
+    %   show the comparison accuracy
+    handles.comparisonAccuracyTxt.String = sprintf('%.1f %%', percent_overlap * 100);
 
 % --- Executes during object creation, after setting all properties.
 function originalSpectrogramAxes_CreateFcn(hObject, eventdata, handles)

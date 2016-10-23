@@ -127,6 +127,16 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     %   read the audio and sample rate
     [handles.recordingAudio, handles.recordingFs] = audioread(handles.recordingFileName);
     
+    %   crop/pad the recording so that it matches the original
+    [originalAudioLength, ~] = size(handles.originalAudio);
+    [recordingAudioLength, ~] = size(handles.recordingAudio);
+
+    if (originalAudioLength > recordingAudioLength);
+       handles.recordingAudio = padarray(handles.recordingAudio, originalAudioLength);
+    elseif (originalAudioLength < recordingAudioLength);
+        handles.recordingAudio = handles.recordingAudio(1:originalAudioLength, :);
+    end;
+    
     %   render the spectogram
     axes(handles.recordingSpectrogramAxes);
     plotspectrogram(handles.recordingAudio, handles.recordingFs);
@@ -150,6 +160,15 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
 %% compareOriginalAndRecordingImages - compares two images
 function compareOriginalAndRecordingImages(hObject, handles)
 
+    % ensure that the images match
+    [aX, aY, aZ] = size(handles.originalAudioImage);
+    [bX, bY, ~] = size(handles.recordingAudioImage);
+    padding = [(aX - bX) (aY - bY)];
+    padding(padding<0) = 0;
+    handles.recordingAudioImage = padarray(handles.recordingAudioImage, padding);
+    handles.recordingAudioImage = handles.recordingAudioImage(1: aX, 1:aY, 1:aZ);
+   
+    
     x = guidata(hObject);
 
     x.sensitivity = 85;
