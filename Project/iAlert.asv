@@ -22,9 +22,9 @@ function varargout = iAlert(varargin)
 
 % Edit the above text to modify the response to help iAlert
 
-% Last Modified by GUIDE v2.5 23-Oct-2016 22:17:10
+% Last Modified by GUIDE v2.5 23-Oct-2016 23:00:13
 
-format compact
+
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,6 +56,9 @@ function iAlert_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for iAlert
 handles.output = hObject;
+
+% Resize the output plots to be the same size
+handles.axesRecord.Position(3) = handles.axesLive.Posio
 
 % Update handles structure
 guidata(hObject, handles);
@@ -163,17 +166,14 @@ function Record(recordBtn,recordTimer)
     s = struct();
     s.images = {};
 
+    s.Stop = 0;
     
-    n = 0
+
+    
     % Process while the length of the recording is shorter then the
     % original and the stop button has not been pressed
-    while length(x.a) <= length(x.song) & x.Stop == 0 & n < 10;
-        
-        n = n + 1
-        'Recording: ' + n
-        pause(1)
-        
-        
+    while length(x.a) <= length(x.song) & x.Stop == 0;
+
         if(strcmp(recordTimer.Running,'off') == 1)
             x.a = getaudiodata(x.recording);
             if(length(x.a) > length(x.song))
@@ -200,33 +200,34 @@ function Record(recordBtn,recordTimer)
             x.average_percentage = (sum(x.percentages) /  length(x.percentages));
             string  = sprintf(' Accuracy %.2f %%', x.average_percentage);
             x.accuracyTxt.String = string;
+            string
 
         end
         x.prevLength = x.currentLengthA;
 
 
     end
-%     
-%     x.percentages
-%     x.recording.stop;
-%     x.resetBtn.Enable = 'on';
-% 
-%     axes(x.axesLive);
-%     plotspectrogram(x.song(1:x.currentLengthA,1),x.CompareFs);
-%     ylim([200 2000]);
-% 
-% 
-%     axes(x.axesRecord);
-%     plotspectrogram(x.a(1:x.currentLengthA),x.CompareFs);
-% 
-%     ylim([200 2000]);
-% 
-%     % save images to compare them 
-%     for i = 1:length(s.images)
-%         str = sprintf('%d',i);
-%         str(end+1:end+4) = '.png';
-%         imwrite(s.images{i},str)
-%     end
+    
+    x.percentages;
+    x.recording.stop;
+    x.resetBtn.Enable = 'on';
+
+    axes(x.axesLive);
+    plotspectrogram(x.song(1:x.currentLengthA,1),x.CompareFs);
+    ylim([200 2000]);
+
+
+    axes(x.axesRecord);
+    plotspectrogram(x.a(1:x.currentLengthA),x.CompareFs);
+
+    ylim([200 2000]);
+
+    % save images to compare them 
+    for i = 1:length(s.images)
+        str = sprintf('%d',i);
+        str(end+1:end+4) = '.png';
+        imwrite(s.images{i},str)
+    end
 
 
 %%  btnStop_Callback
@@ -235,6 +236,20 @@ function btnStop_Callback(hObject, eventdata, handles)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
 
-    handles.Stop == 1;
+    if (handles.debug)
+        'btnStop_Callback'
+    end
+        
+    handles.Stop = 1;
     guidata(hObject, handles);
    
+
+
+% --- Executes on button press in pushbutton5.
+function pushbutton5_Callback(hObject, eventdata, handles)
+    % hObject    handle to pushbutton5 (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    soundsc(handles.song, handles.CompareFs);
+    

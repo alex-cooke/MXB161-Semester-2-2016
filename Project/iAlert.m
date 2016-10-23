@@ -24,7 +24,6 @@ function varargout = iAlert(varargin)
 
 % Last Modified by GUIDE v2.5 23-Oct-2016 23:00:13
 
-format compact
 
 
 % Begin initialization code - DO NOT EDIT
@@ -58,7 +57,9 @@ function iAlert_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for iAlert
 handles.output = hObject;
 
-handles.debug = 1;
+% Resize the output plots to be the same size
+handles.axesRecord.Position(3) = handles.axesLive.Position(3);
+handles.axesRecord.Position(4) = handles.axesLive.Position(4);
 
 
 % Update handles structure
@@ -169,6 +170,7 @@ function Record(recordBtn,recordTimer)
 
     s.Stop = 0;
     
+
     
     % Process while the length of the recording is shorter then the
     % original and the stop button has not been pressed
