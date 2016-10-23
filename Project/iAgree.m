@@ -60,11 +60,11 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 
-%  Ensure that all axes are the same width
-% handles.recordingSpectrogramAxes.Position(3) = 100;%handles.originalSpectrogramAxes.Position(3);
-% handles.recordingSpectrogramAxes.Position(4) = 24;%handles.originalSpectrogramAxes.Position(4);
-% handles.comparisonSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
-% handles.comparisonSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
+% Ensure that all axes are the same width
+handles.recordingSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
+handles.recordingSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
+handles.comparisonSpectrogramAxes.Position(3) = handles.originalSpectrogramAxes.Position(3);
+handles.comparisonSpectrogramAxes.Position(4) = handles.originalSpectrogramAxes.Position(4);
 
 % audio recorder
 handles.sampleRate = 44100;
@@ -162,7 +162,7 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
     [recordingAudioLength, ~] = size(handles.recordingAudio);
 
     if (originalAudioLength > recordingAudioLength);
-       handles.recordingAudio = padarray(handles.recordingAudio, originalAudioLength, 'replicate', 'post');
+       handles.recordingAudio = padarray(handles.recordingAudio, originalAudioLength);%, 'replicate', 'post');
     elseif (originalAudioLength < recordingAudioLength);
         handles.recordingAudio = handles.recordingAudio(1:originalAudioLength, :);
     end;
