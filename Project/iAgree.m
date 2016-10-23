@@ -182,11 +182,11 @@ function compareOriginalAndRecordingImages(hObject, handles)
     % ensure that the images match
      [aX, aY, aZ] = size(handles.originalAudioImage);
      [bX, bY, ~] = size(handles.recordingAudioImage);
-%     padding = [(aX - bX) (aY - bY)];
-%     padding(padding<0) = 0;
-%     handles.recordingAudioImage = padarray(handles.recordingAudioImage, padding, 'replicate', 'post');
-%     handles.recordingAudioImage = handles.recordingAudioImage(1: aX, 1:aY, 1:aZ);
-     handles.originalAudioImage = handles.originalAudioImage(1: 248, 1:781, 1:3);
+     padding = [(aX - bX) (aY - bY)];
+     padding(padding<0) = 0;
+     handles.recordingAudioImage = padarray(handles.recordingAudioImage, padding, 'replicate', 'post');
+     handles.recordingAudioImage = handles.recordingAudioImage(1: aX, 1:aY, 1:aZ);
+   % handles.originalAudioImage = handles.originalAudioImage(1: 248, 1:781, 1:3);
      
 %    
 %     
