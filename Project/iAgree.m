@@ -22,7 +22,7 @@ function varargout = iAgree(varargin)
 
 % Edit the above text to modify the response to help iAgree
 
-% Last Modified by GUIDE v2.5 24-Oct-2016 09:00:50
+% Last Modified by GUIDE v2.5 24-Oct-2016 13:06:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -121,6 +121,11 @@ function originalLoadBtn_Callback(hObject, eventdata, handles)
     
     %   render the original audio
     renderOriginalAudio(hObject, handles);
+    handles.originalAudioPlayBtn.Enable = 'on';
+    handles.recordingLiveButton.Enable = 'on';
+    handles.recordingAudioRecordBtn.Enable = 'on';
+    handles.recordingLoadButton.Enable = 'on';
+
    
 %% renderOriginalAudio
 function renderOriginalAudio(hObject, handles)
@@ -131,15 +136,14 @@ function renderOriginalAudio(hObject, handles)
     ylim([200 2000]);
     xlabel('');
     ylabel('');
-    handle.originalSpectrogramAxes.Visible = 'on'
+    handles.originalSpectrogramAxes.Visible = 'on'
     axis off
     
     %   capture the spectrogram image
     img = getframe(gca);
     handles.originalAudioImage = img.cdata;
     
-    % hide the live axis
-    handles.axesLive.Visible = 'off'
+    %axis on
     
     % save the data
     guidata(hObject, handles)
@@ -159,6 +163,8 @@ function renderRecordingAudio(hObject, handles)
     %   capture the spectrogram image
     img = getframe(gca);
     handles.recordingAudioImage = img.cdata;
+    
+    %axis on
     
     %   save the handles
     guidata(hObject, handles);
@@ -193,7 +199,8 @@ function recordingLoadButton_Callback(hObject, eventdata, handles)
      
     %   render the audio
     renderRecordingAudio(hObject, handles);
-  
+    handles.recordingPlayButton.Enable ='on';
+    
 
 
 %% compareOriginalAndRecordingImages - compares two images
@@ -580,3 +587,11 @@ function startTimer(timer)
     start(timer)
 
 
+
+
+% --- Executes on button press in stopAllSound.
+function stopAllSound_Callback(hObject, eventdata, handles)
+% hObject    handle to stopAllSound (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+clear sound;
