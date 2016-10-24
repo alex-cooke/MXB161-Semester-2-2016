@@ -216,7 +216,7 @@ function compareOriginalAndRecordingImages(hObject, handles)
     imshow(overlap_mask_col);
     
     %   show the comparison accuracy
-    handles.comparisonAccuracyTxt.String = sprintf('%.1f %%', percent_overlap * 100);
+    handles.comparisonAccuracyTxt.String = sprintf('%.0f %%', percent_overlap * 100);
 
 % --- Executes during object creation, after setting all properties.
 function originalSpectrogramAxes_CreateFcn(hObject, eventdata, handles)
@@ -515,7 +515,7 @@ function Record(recordBtn,recordTimer, handles)
             recordTimer.StartDelay = 1;
             % compare b to a 
     %         figure;
-    %         imshow(x.overlap);
+    %         imshow(x.overlap);s
             x.percentage = x.percentage * 100;
             if isnan(x.percentage)
                 x.percentage = 0;
@@ -537,25 +537,25 @@ function Record(recordBtn,recordTimer, handles)
     x.resetBtn.Enable = 'on';
 
     axes(x.originalSpectrogramAxes);
-    plotspectrogram(x.originalAudio(1:x.currentLengthA,1),x.originalFs);
+    plotspectrogram(x.originalAudio(1:end,1),x.originalFs);
     ylim([200 2000]);
 
     axis off
 
     axes(x.recordingSpectrogramAxes);
-    plotspectrogram(x.a(1:x.currentLengthA),x.originalFs);
+    plotspectrogram(x.a(1:size(x.originalAudio)),x.originalFs);
 
     ylim([200 2000]);
     
     axis off
 
-    % save images to compare them 
-    for i = 1:length(s.images)
-        str = sprintf('%d',i);
-        str(end+1:end+4) = '.png';
-        imwrite(s.images{i},str)
-    end
-    
+%     % save images to compare them 
+%     for i = 1:length(s.images)
+%         str = sprintf('%d',i);
+%         str(end+1:end+4) = '.png';
+%         imwrite(s.images{i},str)
+%     end
+%     
     enableAllInputs(handles);
     
 function initRecord(recordHandle)

@@ -8,11 +8,6 @@ function [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareIm
 axis off
 load specmap;
 
-%image sound a must be the original audio
-image_sound_a = image_sound_a;
-image_sound_b = image_sound_b;
-
-
 
 percentage_mask = (100- sensitivity) %finetune 
 if percentage_mask < 100
