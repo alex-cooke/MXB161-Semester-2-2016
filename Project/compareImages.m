@@ -95,9 +95,10 @@ mask_a_col = cat(3,mask_a * (255/255), mask_a * (51/255), mask_a * (0/255)); %re
 mask_b_col = cat(3,mask_b * (51/255), mask_b *  (204/255)   , mask_b * (51/255));%green 
 overlap_mask_col = cat(3,overlap_mask * (10/255), overlap_mask *(154/255), overlap_mask * (250/255)); %blue
 
-percent_overlap = sum(overlap_mask(:)) / ((sum(mask_a(:)))+1);
+% percent_overlap = sum(overlap_mask(:)) / ((sum(mask_a(:)))+1);
 
-
+percent_overlap = sum(overlap_mask(:)) / ((sum(mask_a(:))));
+% 
 % figure;
 % imshow(mask_a_col);
 % figure;

@@ -206,17 +206,10 @@ function compareOriginalAndRecordingImages(hObject, handles)
      padding(padding<0) = 0;
      handles.recordingAudioImage = padarray(handles.recordingAudioImage, padding, 'replicate', 'post');
      handles.recordingAudioImage = handles.recordingAudioImage(1: aX, 1:aY, 1:aZ);
-   % handles.originalAudioImage = handles.originalAudioImage(1: 248, 1:781, 1:3);
-     
-%    
-%     
+
     x = guidata(hObject);
 
-    x.sensitivity = 85;
-    x.p_offset = 100;
-    x.delay = 1;
-
-    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, handles.sensitivity,handles.p_offset,handles.delay);
+    [percent_overlap, mask_a_col, mask_b_col, overlap_mask_col] = compareImages(handles.originalAudioImage, handles.recordingAudioImage, handles.sensitivity,handles.delay,handles.p_offset);
 
     %   render the comparison spectogram
     axes(handles.comparisonSpectrogramAxes);
